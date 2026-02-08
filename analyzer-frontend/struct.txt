@@ -1,0 +1,9 @@
+src/
+ ├─ App.jsx
+ ├─ index.css
+ ├─ pages/
+ │   ├─ Home.jsx
+ │   ├─ WebsiteSummarizer.jsx
+ │   └─ PDFSummarizer.jsx
+ └─ components/
+     └─ SummaryDisplay.jsx

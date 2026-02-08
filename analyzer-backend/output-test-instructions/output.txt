@@ -1,0 +1,21 @@
+Here are the methods for handling summarization requests.
+
+
+1) Summarize Text
+POST - http://localhost:5000/api/summarize/website
+Inside the body of json request, pass the url to be summarized.
+{
+    "url": "https://example.com"
+}
+The response will contain the original URL and the generated summary.
+
+2) Summarize PDF
+POST - http://localhost:5000/api/summarize/pdf
+Inside the body of the request, use form-data to pass the PDF file to be summarized.
+{
+    "file": "<PDF file data>",
+}
+The response will contain the generated summary of the PDF content.
+
+3) Summarize Image
+soon to be re-worked and added.
