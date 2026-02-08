@@ -1,0 +1,222 @@
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              FRONTEND (React + Vite)                        │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │                    WebsiteAnalyzer.jsx                                │  │
+│  │   ┌─────────────┐    ┌──────────────────┐    ┌───────────────────┐    │  │
+│  │   │ URL Input   │ -> │  POST Request    │ -> │ SSE Stream Reader │    │  │
+│  │   │   Form      │    │  /api/summarize  │    │ (Real-time chunks)│    │  │
+│  │   └─────────────┘    │    /website      │    └───────────────────┘    │  │
+│  │                      └──────────────────┘              │              │  │
+│  │                                                        ▼              │  │
+│  │                                           ┌───────────────────────┐   │  │
+│  │                                           │  AnalyzerDisplay.jsx  │   │  │
+│  │                                           │  (React Markdown)     │   │  │
+│  │                                           └───────────────────────┘   │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      │ HTTP POST (URL in body)
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            BACKEND (Express.js)                             │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │                          server.js                                    │  │
+│  │   Express App → CORS → Morgan → /api Routes                           │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+│                                      │                                      │
+│                                      ▼                                      │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │                      routes/index.js                                  │  │
+│  │           router.use("/summarize/website", openRouterSumm)            │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+│                                      │                                      │
+│                                      ▼                                      │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │                  controllers/openRouterController.js                  │  │
+│  │                                                                       │  │
+│  │  1. Validate URL (isValidURL)                                         │  │
+│  │                      │                                                │  │
+│  │                      ▼                                                │  │
+│  │  2. Fetch Website Content (node-fetch + User-Agent)                   │  │
+│  │                      │                                                │  │
+│  │                      ▼                                                │  │
+│  │  3. Parse HTML & Extract Text (JSDOM)                                 │  │
+│  │     - Remove: script, style, nav, header, footer                      │  │
+│  │     - Extract: main, article, .content, body                          │  │
+│  │                      │                                                │  │
+│  │                      ▼                                                │  │
+│  │  4. Truncate Content (max 50,000 chars)                               │  │
+│  │                      │                                                │  │
+│  │                      ▼                                                │  │
+│  │  5. Send to OpenRouter API (SSE Streaming)                            │  │
+│  │     Model: liquid/lfm-2.5-1.2b-instruct:free                          │  │
+│  │                      │                                                │  │
+│  │                      ▼                                                │  │
+│  │  6. Stream Response back to Frontend (Server-Sent Events)             │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      │ SSE Stream
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           OPENROUTER API                                    │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │   Model: liquid/lfm-2.5-1.2b-instruct:free                            │  │
+│  │   - Receives website text content                                     │  │
+│  │   - Generates structured markdown summary                             │  │
+│  │   - Streams response chunks in real-time                              │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+
+─────────────────────────────────────────────────────────────────────────────
+🔑 Key Features
+
+Real-time Streaming	SSE (Server-Sent Events) for live summary updates
+Smart Content Extraction JSDOM removes unnecessary elements (nav, footer, scripts)
+Markdown Formatting	AI returns structured markdown with emojis & sections
+URL Validation Validates HTTP/HTTPS protocols before processing
+Timeout Handling 30-second abort controller for slow websites
+─────────────────────────────────────────────────────────────────────────────
+
+
+
+
+📦 Frontend Stack
+┌──────────────────┬─────────┬─────────────────────────────┐
+│ Technology       │ Version │ Purpose                     │
+├──────────────────┼─────────┼─────────────────────────────┤
+│ React            │ 19.1.1  │ UI Library                  │
+│ Vite             │ 7.1.7   │ Build Tool & Dev Server     │
+│ Tailwind CSS     │ 4.1.13  │ Utility-first CSS Styling   │
+│ React Router DOM │ 7.9.3   │ Client-side Routing         │
+│ Axios            │ 1.12.2  │ HTTP Client                 │
+│ React Markdown   │ 10.1.0  │ Markdown Rendering          │
+└──────────────────┴─────────┴─────────────────────────────┘
+
+
+🖥️ Backend Stack
+┌─────────────────┬─────────┬─────────────────────────────────┐
+│ Technology      │ Version │ Purpose                         │
+├─────────────────┼─────────┼─────────────────────────────────┤
+│ Node.js         │ ≥18.0.0 │ Runtime Environment             │
+│ Express         │ 5.1.0   │ Web Framework                   │
+│ OpenRouter SDK  │ 0.3.16  │ AI API Gateway (LLM Access)     │
+│ JSDOM           │ 27.0.0  │ HTML Parsing & DOM Manipulation │
+│ node-fetch      │ 3.3.2   │ HTTP Fetching (Website Content) │
+│ CORS            │ 2.8.5   │ Cross-Origin Resource Sharing   │
+│ dotenv          │ 17.2.3  │ Environment Variables           │
+│ Morgan          │ 1.10.1  │ HTTP Request Logger             │
+└─────────────────┴─────────┴─────────────────────────────────┘
+
+
+🚀 Summary
+
+Frontend: React 19 + Vite 7 + Tailwind CSS 4
+Backend: Express 5 + OpenRouter SDK + JSDOM
+AI Provider: OpenRouter (using liquid/lfm-2.5-1.2b-instruct:free model)
+Communication: SSE streaming for real-time summary chunks
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                        🔧 HOW IT WORKS - TECHNICAL FLOW
+═══════════════════════════════════════════════════════════════════════════════
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          📱 FRONTEND WORKFLOW                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  1️⃣  USER INPUT                                                             │
+│     └─> User enters a website URL in the input form                         │
+│     └─> Form validation ensures URL is provided                             │
+│                                                                             │
+│  2️⃣  HTTP REQUEST                                                           │
+│     └─> On submit, sends POST request to backend API                        │
+│     └─> Endpoint: /api/summarize/website                                    │
+│     └─> Body: { url: "https://example.com" }                                │ 
+│                                                                             │
+│  3️⃣  SSE STREAM HANDLING                                                    │
+│     └─> Uses ReadableStream API to read response chunks                     │
+│     └─> TextDecoder converts binary data to text                            │
+│     └─> Parses "data: {chunk}" lines from SSE format                        │
+│     └─> Accumulates chunks into complete summary                            │ 
+│                                                                             │
+│  4️⃣  REAL-TIME RENDERING                                                    │
+│     └─> React state updates with each incoming chunk                        │
+│     └─> AnalyzerDisplay renders markdown using react-markdown               │
+│     └─> User sees summary being "typed" in real-time                        │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+
+│                          🖥️  BACKEND WORKFLOW                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  1️⃣  REQUEST HANDLING                                                       │
+│     └─> Express receives POST request at /api/summarize/website             │
+│     └─> Extracts URL from request body                                      │
+│     └─> Validates URL format (must be http:// or https://)                  │
+│                                                                             │
+│  2️⃣  WEBSITE FETCHING                                                       │
+│     └─> Uses node-fetch to GET the target website                           │
+│     └─> Sets User-Agent header to mimic browser request                     │
+│     └─> 30-second timeout via AbortController                               │
+│                                                                             │
+│  3️⃣  HTML PARSING (JSDOM)                                                   │
+│     └─> Parses raw HTML into DOM structure                                  │
+│     └─> REMOVES: <script>, <style>, <nav>, <header>, <footer>               │
+│     └─> EXTRACTS: Content from <main>, <article>, .content, or <body>       │
+│     └─> Cleans whitespace and returns plain text                            │
+│                                                                             │
+│  4️⃣  CONTENT PREPARATION                                                    │
+│     └─> Validates extracted text (minimum 50 characters)                    │
+│     └─> Truncates to 50,000 characters if too long                          │
+│     └─> Prepares prompt with structured instructions                        │
+│                                                                             │
+│  5️⃣  AI SUMMARIZATION (OpenRouter)                                          │
+│     └─> Sends text to OpenRouter API                                        │
+│     └─> Model: liquid/lfm-2.5-1.2b-instruct:free                            │
+│     └─> Requests streaming response for real-time output                    │
+│                                                                             │
+│  6️⃣  SSE STREAMING RESPONSE                                                 │
+│     └─> Sets headers: Content-Type: text/event-stream                       │
+│     └─> Streams each AI token as: data: {"chunk": "..."}\n\n                │
+│     └─> Sends done signal when complete                                     │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        🔄 END-TO-END DATA FLOW                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   [User]                                                                    │
+│     │                                                                       │
+│     │ 1. Enter URL                                                          │
+│     ▼                                                                       │
+│   [React Frontend] ──── POST /api/summarize/website ────▶ [Express Server] │
+│     │                                                            │          │
+│     │                                                            │ 2. Fetch │
+│     │                                                            ▼          │
+│     │                                                     [Target Website]  │
+│     │                                                            │          │
+│     │                                                            │ 3. HTML  │
+│     │                                                            ▼          │
+│     │                                                     [JSDOM Parser]    │
+│     │                                                            │          │
+│     │                                                            │ 4. Text  │
+│     │                                                            ▼          │
+│     │                                                     [OpenRouter API]  │
+│     │                                                            │          │
+│     │                                                            │ 5. AI    │
+│     │                                                            │  Stream  │
+│     │ ◀──────────────── SSE Stream ─────────────────────────────┘          │
+│     │                                                                       │
+│     │ 6. Render Summary                                                     │
+│     ▼                                                                       │
+│   [AnalyzerDisplay]                                                         │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
