@@ -1,8 +1,8 @@
 <div align="center">
 
-# 📰 News Website Summarizer
+# 📰 News Website Analyzer
 
-### Instantly summarize any website with real-time AI streaming
+### Instantly analyze any website with real-time AI streaming and verdicts
 
 [![React](https://img.shields.io/badge/React-19.1.1-61DAFB?style=for-the-badge&logo=react&logoColor=white)](https://react.dev/)
 [![Express](https://img.shields.io/badge/Express-5.1.0-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
@@ -28,7 +28,7 @@
 
 ## 🌟 Overview
 
-A full-stack AI-powered application that provides intelligent website summarization using **OpenRouter AI** with **real-time SSE streaming**. Enter any URL and watch as the AI generates a comprehensive markdown summary in real-time.
+A full-stack AI-powered application that provides intelligent website analysis using **OpenRouter AI** with **real-time SSE streaming**. Enter any URL and watch as the AI generates a comprehensive markdown analysis with clear verdicts in real-time.
 
 ```
 ┌──────────────┐     POST /api      ┌──────────────┐     Fetch      ┌──────────────┐
@@ -49,7 +49,7 @@ A full-stack AI-powered application that provides intelligent website summarizat
 ## 🏗️ Architecture
 
 ```
-AI-Summarizer/
+AI-Analyzer/
 │
 
 ├── 📁 analyzer-frontend/          # React Client (Vite)
@@ -65,7 +65,7 @@ AI-Summarizer/
 │
 ├── 📁 analyzer-backend/           # Express API Server
 │   ├── controllers/
-│   │   └── openRouterController.js  # Website summarization logic
+│   │   └── openRouterController.js  # Website analysis logic
 │   ├── routes/
 │   │   ├── index.js                 # Route aggregator
 │   │   └── openRouterSumm.js        # OpenRouter routes
@@ -113,13 +113,13 @@ AI-Summarizer/
 
 ## ✨ Features
 
-| Feature                         | Description                                                       |
-| :------------------------------ | :---------------------------------------------------------------- |
-| 🌊 **Real-time Streaming**      | SSE (Server-Sent Events) for live summary updates as AI generates |
-| 🧹 **Smart Content Extraction** | JSDOM removes unnecessary elements (nav, footer, scripts)         |
-| 📝 **Markdown Formatting**      | AI returns structured markdown with emojis & sections             |
-| ✅ **URL Validation**           | Validates HTTP/HTTPS protocols before processing                  |
-| ⏱️ **Timeout Handling**         | 30-second abort controller for slow websites                      |
+| Feature                         | Description                                                        |
+| :------------------------------ | :----------------------------------------------------------------- |
+| 🌊 **Real-time Streaming**      | SSE (Server-Sent Events) for live analysis updates as AI generates |
+| 🧹 **Smart Content Extraction** | JSDOM removes unnecessary elements (nav, footer, scripts)          |
+| 📝 **Markdown Formatting**      | AI returns structured markdown with emojis & sections              |
+| ✅ **URL Validation**           | Validates HTTP/HTTPS protocols before processing                   |
+| ⏱️ **Timeout Handling**         | 30-second abort controller for slow websites                       |
 
 ---
 
@@ -133,7 +133,7 @@ AI-Summarizer/
     └─▶ Form validation ensures URL is provided
 
 2️⃣  HTTP REQUEST
-    └─▶ POST request to /api/summarize/website
+    └─▶ POST request to /api/analyze/website
     └─▶ Body: { url: "https://example.com" }
 
 3️⃣  SSE STREAM HANDLING
@@ -144,14 +144,14 @@ AI-Summarizer/
 4️⃣  REAL-TIME RENDERING
     └─▶ React state updates with each chunk
     └─▶ AnalyzerDisplay renders markdown live
-    └─▶ User sees summary "typed" in real-time
+    └─▶ User sees analysis and verdicts "typed" in real-time
 ```
 
 ### Backend Workflow
 
 ```
 1️⃣  REQUEST HANDLING
-    └─▶ Express receives POST at /api/summarize/website
+    └─▶ Express receives POST at /api/analyze/website
     └─▶ Validates URL format (http:// or https://)
 
 2️⃣  WEBSITE FETCHING
@@ -168,7 +168,7 @@ AI-Summarizer/
     └─▶ Validates text (minimum 50 characters)
     └─▶ Truncates to 50,000 characters max
 
-5️⃣  AI SUMMARIZATION
+5️⃣  AI ANALYSIS
     └─▶ Sends to OpenRouter API
     └─▶ Model: liquid/lfm-2.5-1.2b-instruct:free
     └─▶ Requests streaming response
@@ -187,7 +187,7 @@ AI-Summarizer/
 └────┬────┘
     │ 1. Enter URL
     ▼
-┌────────────────────┐    POST /api/summarize/website    ┌────────────────────┐
+┌────────────────────┐    POST /api/analyze/website    ┌────────────────────┐
 │  React Frontend    │ ─────────────────────────────────▶│  Express Server    │
 │ (analyzer-frontend)│                                   │ (analyzer-backend) │
 └────────────────────┘                                   └────────┬───────────┘
@@ -200,7 +200,7 @@ AI-Summarizer/
     │                                                          │
     │                                            3. HTML      │
     │                                                          ▼
-    │                                                ┌────────────────────┐
+    │                                                ┌──���─────────────────┐
     │                                                │   JSDOM Parser     │
     │                                                └────────┬──────────┘
     │                                                          │
@@ -231,13 +231,13 @@ AI-Summarizer/
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd AI-Summarizer
+cd AI-Analyzer
 ```
 
 #### Backend Setup
 
 ```bash
-cd summarizer-backend
+cd analyzer-backend
 npm install
 
 # Create .env file
@@ -250,7 +250,7 @@ npm run dev
 #### Frontend Setup
 
 ```bash
-cd summarizer-frontend
+cd analyzer-frontend
 npm install
 npm run dev
 ```
@@ -274,10 +274,10 @@ http://localhost:5000/api
 
 ### Endpoints
 
-#### 🌐 Website Summarization
+#### 🌐 Website Analysis
 
 ```http
-POST /api/summarize/website
+POST /api/analyze/website
 Content-Type: application/json
 
 {
@@ -288,7 +288,7 @@ Content-Type: application/json
 **Response**: Server-Sent Events stream
 
 ```
-data: {"chunk": "## Summary\n"}
+data: {"chunk": "## Analysis\n"}
 data: {"chunk": "This website..."}
 data: [DONE]
 ```
@@ -316,7 +316,7 @@ ALLOWED_ORIGINS=http://localhost:5173
 
 ```env
 VITE_API_BASE_URL=http://localhost:5000
-VITE_APP_NAME=AI Content Summarizer
+VITE_APP_NAME=AI Content Analyzer
 ```
 
 ---
