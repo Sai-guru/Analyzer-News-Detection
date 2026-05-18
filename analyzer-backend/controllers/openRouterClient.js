@@ -53,8 +53,7 @@ Allowed verdicts (choose only one per claim):
 - Misleading Framing
 `;
 
-// export const STREAMING_MODEL = "deepseek/deepseek-r1";
-export const STREAMING_MODEL = "liquid/lfm-2.5-1.2b-instruct:free";
+export const STREAMING_MODEL = "deepseek/deepseek-r1";
 
 export const buildUserPrompt = ({
   source,

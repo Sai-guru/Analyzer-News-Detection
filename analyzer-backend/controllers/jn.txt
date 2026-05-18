@@ -325,7 +325,7 @@ export const openControllerNoStream = async (req, res) => {
     const truncatedText = truncateForModel(text, 50000);
 
     const completion = await getOpenRouterClient().chat.send({
-      model: "liquid/lfm-2.5-1.2b-thinking:free",
+      model: "deepseek/deepseek-r1",
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         {
