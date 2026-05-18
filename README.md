@@ -38,10 +38,16 @@ A full-stack AI-powered application that provides intelligent website analysis u
        ▲                                   │
        │                                   │ Parse HTML (JSDOM)
        │                                   ▼
-       │                            ┌──────────────┐
-       │◀─── SSE Stream ────────────│  OpenRouter  │
-       │     (Real-time chunks)     │     AI       │
-       │                            └──────────────┘
+    │                            ┌──────────────┐
+    │◀─── SSE Stream ────────────│  OpenRouter  │
+    │     (Real-time chunks)     │     AI       │
+    │                            └──────────────┘
+    │                                   ▲
+    │                                   │ Evidence (Tavily)
+    │                                   ▼
+    │                            ┌──────────────┐
+    │                            │    Tavily    │
+    │                            └──────────────┘
 ```
 
 ---
@@ -65,7 +71,9 @@ AI-Analyzer/
 │
 ├── 📁 analyzer-backend/           # Express API Server
 │   ├── controllers/
-│   │   └── openRouterController.js  # Website analysis logic
+│   │   ├── mainController.js        # Orchestrates extraction, Tavily, OpenRouter
+│   │   ├── openRouterClient.js      # OpenRouter client + prompt config
+│   │   └── tavilyClient.js          # Tavily search layer
 │   ├── routes/
 │   │   ├── index.js                 # Route aggregator
 │   │   └── openRouterSumm.js        # OpenRouter routes
@@ -102,12 +110,13 @@ AI-Analyzer/
 | **CORS**           |  2.8.5  | Cross-Origin Support  |
 | **Morgan**         | 1.10.1  | HTTP Logger           |
 | **dotenv**         | 17.2.3  | Environment Variables |
+| **Tavily SDK**     |   1.x   | Live Search Evidence  |
 
 ### AI Provider
 
-| Model                               | Provider   |
-| :---------------------------------- | :--------- |
-| `liquid/lfm-2.5-1.2b-instruct:free` | OpenRouter |
+| Model                  | Provider   |
+| :--------------------- | :--------- |
+| `deepseek/deepseek-r1` | OpenRouter |
 
 ---
 
@@ -117,6 +126,7 @@ AI-Analyzer/
 | :------------------------------ | :----------------------------------------------------------------- |
 | 🌊 **Real-time Streaming**      | SSE (Server-Sent Events) for live analysis updates as AI generates |
 | 🧹 **Smart Content Extraction** | JSDOM removes unnecessary elements (nav, footer, scripts)          |
+| 🔎 **Live Evidence**            | Tavily search results injected into the prompt                     |
 | 📝 **Markdown Formatting**      | AI returns structured markdown with emojis & sections              |
 | ✅ **URL Validation**           | Validates HTTP/HTTPS protocols before processing                   |
 | ⏱️ **Timeout Handling**         | 30-second abort controller for slow websites                       |
@@ -168,12 +178,16 @@ AI-Analyzer/
     └─▶ Validates text (minimum 50 characters)
     └─▶ Truncates to 50,000 characters max
 
-5️⃣  AI ANALYSIS
+5️⃣  LIVE SEARCH EVIDENCE
+    └─▶ Tavily search (news, fast, top 3)
+    └─▶ Evidence injected into the prompt
+
+6️⃣  AI ANALYSIS
     └─▶ Sends to OpenRouter API
-    └─▶ Model: liquid/lfm-2.5-1.2b-instruct:free
+    └─▶ Model: deepseek/deepseek-r1
     └─▶ Requests streaming response
 
-6️⃣  SSE STREAMING RESPONSE
+7️⃣  SSE STREAMING RESPONSE
     └─▶ Headers: Content-Type: text/event-stream
     └─▶ Streams: data: {"chunk": "..."}\n\n
     └─▶ Sends done signal when complete
@@ -309,6 +323,7 @@ GET /api/health
 NODE_ENV=development
 PORT=5000
 OPENROUTER_API_KEY=your_openrouter_api_key_here
+TAVILY_API_KEY=your_tavily_api_key_here
 ALLOWED_ORIGINS=http://localhost:5173
 ```
 

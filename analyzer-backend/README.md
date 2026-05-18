@@ -1,12 +1,12 @@
-# 🚀 Summarizer Backend API
+# 🚀 Analyzer Backend API
 
-A powerful and professional backend API service that leverages Google's Gemini AI to provide intelligent content analysis and summarization capabilities.
+A backend API that combines Tavily live search with OpenRouter AI for evidence-based website analysis and streaming verdicts.
 
 ## ✨ Features
 
 - **📄 PDF Summarization**: Extract and summarize content from PDF documents
 - **🖼️ Image Analysis**: Detailed analysis and description of uploaded images
-- **🌐 Website Summarization**: Scrape and summarize content from any website
+- **🌐 Website Analysis**: Scrape, search, and analyze content from any website
 - **🔒 Security First**: Built with helmet, rate limiting, and proper error handling
 - **📊 Professional Logging**: Comprehensive logging with Morgan
 - **⚡ High Performance**: Optimized for speed and efficiency
@@ -18,14 +18,12 @@ A powerful and professional backend API service that leverages Google's Gemini A
 
 ```
 ├── controllers/           # Business logic controllers
-│   ├── imageController.js    # Image analysis logic
-│   ├── pdfController.js      # PDF processing logic
-│   └── websiteController.js  # Website scraping logic
+│   ├── mainController.js     # Orchestrates extraction, Tavily, OpenRouter
+│   ├── openRouterClient.js   # OpenRouter client + prompt config
+│   └── tavilyClient.js       # Tavily search layer
 ├── routes/               # API route definitions
 │   ├── index.js             # Centralized route management
-│   ├── imageSummarizer.js   # Image upload routes
-│   ├── pdfSummarizer.js     # PDF upload routes
-│   └── websiteSummarizer.js # Website analysis routes
+│   └── openRouterSumm.js    # Website analysis routes
 ├── uploads/              # Temporary file storage
 ├── server.js             # Main application entry point
 ├── package.json          # Project dependencies
@@ -38,7 +36,8 @@ A powerful and professional backend API service that leverages Google's Gemini A
 
 - Node.js >= 18.0.0
 - npm >= 8.0.0
-- Google Gemini API key
+- OpenRouter API key
+- Tavily API key
 
 ### Installation
 
@@ -62,11 +61,10 @@ cp .env.example .env
 # Edit .env with your configuration
 ```
 
-4. **Configure your Google API key**
+4. **Configure your API keys**
 
-   - Visit [Google AI Studio](https://aistudio.google.com/app/apikey)
-   - Generate an API key
-   - Add it to your `.env` file
+- OpenRouter: https://openrouter.ai/
+- Tavily: https://tavily.com/
 
 5. **Start the server**
 
@@ -134,7 +132,7 @@ Form Data:
 }
 ```
 
-#### 🌐 Website Summarization
+#### 🌐 Website Analysis
 
 ```http
 POST /api/summarize/website
@@ -151,7 +149,7 @@ Content-Type: application/json
 {
   "success": true,
   "url": "https://example.com",
-  "summary": "Comprehensive summary of the website content...",
+  "summary": "Structured analysis with verdicts...",
   "metadata": {
     "wordCount": 890,
     "contentLength": 5432,
@@ -182,12 +180,13 @@ GET /api/health
 
 ### Environment Variables
 
-| Variable          | Description                       | Default       | Required |
-| ----------------- | --------------------------------- | ------------- | -------- |
-| `NODE_ENV`        | Environment mode                  | `development` | No       |
-| `PORT`            | Server port                       | `5000`        | No       |
-| `GOOGLE_API_KEY`  | Google Gemini API key             | -             | **Yes**  |
-| `ALLOWED_ORIGINS` | CORS allowed origins (production) | -             | No       |
+| Variable             | Description                       | Default       | Required |
+| -------------------- | --------------------------------- | ------------- | -------- |
+| `NODE_ENV`           | Environment mode                  | `development` | No       |
+| `PORT`               | Server port                       | `5000`        | No       |
+| `OPENROUTER_API_KEY` | OpenRouter API key                | -             | **Yes**  |
+| `TAVILY_API_KEY`     | Tavily API key                    | -             | **Yes**  |
+| `ALLOWED_ORIGINS`    | CORS allowed origins (production) | -             | No       |
 
 ### Security Features
 
@@ -264,7 +263,8 @@ If you encounter any issues or have questions:
 
 ## 🙏 Acknowledgments
 
-- Google Gemini AI for powerful language model capabilities
+- OpenRouter AI for model access
+- Tavily for live search evidence
 - Express.js community for robust web framework
 - All contributors who help improve this project
 
