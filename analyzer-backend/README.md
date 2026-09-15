@@ -17,15 +17,19 @@ A backend API that combines Tavily live search with OpenRouter AI for evidence-b
 ### Project Structure
 
 ```
-├── controllers/           # Business logic controllers
-│   ├── mainController.js     # Orchestrates extraction, Tavily, OpenRouter
-│   ├── openRouterClient.js   # OpenRouter client + prompt config
-│   └── tavilyClient.js       # Tavily search layer
-├── routes/               # API route definitions
-│   ├── index.js             # Centralized route management
-│   └── openRouterSumm.js    # Website analysis routes
+├── src/
+│   ├── controllers/        # Business logic controllers
+│   │   └── mainController.js
+│   ├── services/            # External service integrations
+│   │   ├── openRouterService.js
+│   │   └── tavilyService.js
+│   ├── prompts/             # AI system prompts
+│   │   └── systemPrompt.js
+│   ├── routes/              # API route definitions
+│   │   ├── index.js
+│   │   └── openRouterSumm.js
+│   └── server.js             # Main application entry point
 ├── uploads/              # Temporary file storage
-├── server.js             # Main application entry point
 ├── package.json          # Project dependencies
 └── .env.example          # Environment variables template
 ```

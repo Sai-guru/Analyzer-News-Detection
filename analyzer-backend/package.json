@@ -20,7 +20,7 @@
     "express",
     "nodejs"
   ],
-  "author": "Your Name <your.email@example.com>",
+  "author": "",
   "license": "MIT",
   "dependencies": {
     "@google/genai": "^1.21.0",
